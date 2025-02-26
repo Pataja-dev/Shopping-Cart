@@ -1,19 +1,9 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useReducer } from 'react';
 import ProductList from './UI/ProductList';
 import Cart from './UI/Cart';
+import { initialProducts, Product } from './UI/Product';
 
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-}
-
-const initialProducts: Product[] = [
-  { id: 1, name: 'Product 1', price: 10.0 },
-  { id: 2, name: 'Product 2', price: 15.0 },
-  { id: 3, name: 'Product 3', price: 20.0 },
-];
 
 const App: React.FC = () => {
   const [products] = useState<Product[]>(initialProducts);
@@ -21,7 +11,7 @@ const App: React.FC = () => {
     const savedCart = localStorage.getItem('cart');
     return savedCart ? JSON.parse(savedCart) : [];
   });
-  const [searchTerm, setSearchTerm] = useState<string>('');
+
 
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cart));
@@ -41,23 +31,41 @@ const App: React.FC = () => {
     });
   };
 
-  const increaseQuantity = (productId: number) => {
-    setCart((prevCart) =>
-      prevCart.map((item) =>
-        item.product.id === productId ? { ...item, quantity: item.quantity + 1 } : item
-      )
-    );
+  type CartItem = {
+    product: Product;
+    quantity: number;
   };
-
-  const decreaseQuantity = (productId: number) => {
-    setCart((prevCart) =>
-      prevCart.map((item) =>
-        item.product.id === productId && item.quantity > 1
-          ? { ...item, quantity: item.quantity - 1 }
+  
+  type CartState = CartItem[];
+  
+  type CartAction = 
+    | { type: 'ADD_QUANTITY'; productId: number }
+    | { type: 'SUBTRACT_QUANTITY'; productId: number };
+  
+  const quantityReducer = (state: CartState, { type, productId }: CartAction): CartState => 
+    state.map(item => {
+      if (item.product.id === productId) {
+        const newQuantity = type === 'ADD_QUANTITY' ? item.quantity + 1 : Math.max(1, item.quantity - 1);
+        return { ...item, quantity: newQuantity };
+      }
+      return item;
+    });
+  
+  const [quantityState, dispatch] = useReducer(quantityReducer, cart);
+  
+  const updateQuantity = (productId: number, isIncreasing: boolean) => {
+    dispatch({ type: isIncreasing ? 'ADD_QUANTITY' : 'SUBTRACT_QUANTITY', productId });
+    setCart(prevCart => 
+      prevCart.map(item => 
+        item.product.id === productId 
+          ? { ...item, quantity: Math.max(1, isIncreasing ? item.quantity + 1 : item.quantity - 1) } 
           : item
       )
     );
   };
+  
+  const increaseQuantity = (productId: number) => updateQuantity(productId, true);
+  const decreaseQuantity = (productId: number) => updateQuantity(productId, false);
 
   const removeFromCart = (productId: number) => {
     setCart((prevCart) => prevCart.filter((item) => item.product.id !== productId));
@@ -67,6 +75,7 @@ const App: React.FC = () => {
     setCart([]);
   };
 
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -75,7 +84,6 @@ const App: React.FC = () => {
 
   return (
     <>
-    <header className='bg-stone-700'><h1 className='text-white'>Shopping Cart App</h1></header>
   <div className='search-bar  justify-items-center'>
     <button type="button" data-collapse-toggle="navbar-search" aria-controls="navbar-search" aria-expanded="false" className="max-w-full md:hidden text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200  rounded-lg text-sm p-2.5 me-1">
       <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
@@ -100,14 +108,12 @@ const App: React.FC = () => {
   <div>
 
   </div>
-      
-      {/* <input
-        type="text"
-        placeholder="Search products..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      /> */}
+  <div className='mr-[400px]'>
+
       <ProductList products={filteredProducts} addToCart={addToCart} />
+      </div>
+      <div>
+
       <Cart
         cartItems={cart}
         increaseQuantity={increaseQuantity}
@@ -116,6 +122,7 @@ const App: React.FC = () => {
         totalPrice={totalPrice}
         checkout={checkout}
       />
+      </div>
     </div>
     </>
   );
