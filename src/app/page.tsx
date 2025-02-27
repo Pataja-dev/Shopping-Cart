@@ -45,13 +45,13 @@ const App: React.FC = () => {
   const quantityReducer = (state: CartState, { type, productId }: CartAction): CartState => 
     state.map(item => {
       if (item.product.id === productId) {
-        const newQuantity = type === 'ADD_QUANTITY' ? item.quantity + 1 : Math.max(1, item.quantity - 1);
+        const newQuantity = type === 'ADD_QUANTITY' ? item.quantity + 1 : Math.max(0, item.quantity - 1);
         return { ...item, quantity: newQuantity };
       }
       return item;
     });
   
-  const [quantityState, dispatch] = useReducer(quantityReducer, cart);
+  const [_, dispatch] = useReducer(quantityReducer, cart);
   
   const updateQuantity = (productId: number, isIncreasing: boolean) => {
     dispatch({ type: isIncreasing ? 'ADD_QUANTITY' : 'SUBTRACT_QUANTITY', productId });
