@@ -101,7 +101,7 @@ const App: React.FC = () => {
       <input type="text"
         placeholder="Search products..."
         value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}  
+        onChange={(event) => setSearchTerm(event.target.value)}  
         id="search-navbar" 
         className="block p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500" />
     </div>
