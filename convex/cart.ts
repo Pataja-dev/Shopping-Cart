@@ -9,7 +9,7 @@ export const getByUser = query({
       .query("cart")
       .withIndex("by_user", (q) => q.eq("user_id", args.userId))
       .collect();
-    
+
     const itemsWithDetails = await Promise.all(
       cartItems.map(async (item) => {
         const product = await ctx.db.get(item.product_id);
@@ -35,7 +35,7 @@ export const getByUser = query({
         };
       })
     );
-    
+
     // Filter out any items that are null due to missing products
     return itemsWithDetails.filter(item => item !== null);
   },
@@ -55,9 +55,9 @@ export const addItem = mutation({
       .withIndex("by_user", (q) => q.eq("user_id", args.userId))
       .filter((q) => q.eq(q.field("product_id"), args.productId))
       .first();
-    
+
     const now = new Date().toISOString();
-    
+
     if (existing) {
       // Update quantity
       await ctx.db.patch(existing._id, {
@@ -109,7 +109,7 @@ export const clearCart = mutation({
       .query("cart")
       .withIndex("by_user", (q) => q.eq("user_id", args.userId))
       .collect();
-    
+
     await Promise.all(
       cartItems.map(async (item) => {
         await ctx.db.delete(item._id);

@@ -2,12 +2,12 @@
 import React, { useState, useEffect, useReducer } from 'react';
 import ProductList from './UI/ProductList';
 import Cart from './UI/Cart';
-import { initialProducts, Product } from './UI/Product';
+import { fallbackProducts, Product } from './UI/Product';
 import { fetchProductsFromDB } from '../services/databaseService';
 
 const App: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>(initialProducts);
-  const [cart, setCart] = useState<{ product: Product; quantity: number }[]>(() => {
+  const [products, setProducts] = useState<Product[]>(fallbackProducts);
+  const [cart, setCart] = useState<{ product: Product; quantity: number; id?: number }[]>(() => {
     const savedCart = localStorage.getItem('cart');
     return savedCart ? JSON.parse(savedCart) : [];
   });
@@ -50,15 +50,16 @@ const App: React.FC = () => {
   type CartItem = {
     product: Product;
     quantity: number;
+    id?: number;
   };
-  
+
   type CartState = CartItem[];
-  
-  type CartAction = 
-    | { type: 'ADD_QUANTITY'; productId: number }
-    | { type: 'SUBTRACT_QUANTITY'; productId: number };
-  
-  const quantityReducer = (state: CartState, { type, productId }: CartAction): CartState => 
+
+  type CartAction =
+    | { type: 'ADD_QUANTITY'; cartItemId: number; productId: number }
+    | { type: 'SUBTRACT_QUANTITY'; cartItemId: number; productId: number };
+
+  const quantityReducer = (state: CartState, { type, cartItemId, productId }: CartAction): CartState =>
     state.map(item => {
       if (item.product.id === productId) {
         const newQuantity = type === 'ADD_QUANTITY' ? item.quantity + 1 : Math.max(0, item.quantity - 1);
@@ -66,25 +67,25 @@ const App: React.FC = () => {
       }
       return item;
     });
-  
+
   const [_, dispatch] = useReducer(quantityReducer, cart);
-  
-  const updateQuantity = (productId: number, isIncreasing: boolean) => {
-    dispatch({ type: isIncreasing ? 'ADD_QUANTITY' : 'SUBTRACT_QUANTITY', productId });
-    setCart(prevCart => 
-      prevCart.map(item => 
-        item.product.id === productId 
-          ? { ...item, quantity: Math.max(1, isIncreasing ? item.quantity + 1 : item.quantity - 1) } 
+
+  const updateQuantity = (cartItemId: number, productId: number, isIncreasing: boolean) => {
+    dispatch({ type: isIncreasing ? 'ADD_QUANTITY' : 'SUBTRACT_QUANTITY', cartItemId, productId });
+    setCart(prevCart =>
+      prevCart.map(item =>
+        item.product.id === productId
+          ? { ...item, quantity: Math.max(1, isIncreasing ? item.quantity + 1 : item.quantity - 1) }
           : item
       )
     );
   };
-  
-  const increaseQuantity = (productId: number) => updateQuantity(productId, true);
-  const decreaseQuantity = (productId: number) => updateQuantity(productId, false);
 
-  const removeFromCart = (productId: number) => {
-    setCart((prevCart) => prevCart.filter((item) => item.product.id !== productId));
+  const increaseQuantity = (cartItemId: number, productId: number) => updateQuantity(cartItemId, productId, true);
+  const decreaseQuantity = (cartItemId: number, productId: number) => updateQuantity(cartItemId, productId, false);
+
+  const removeFromCart = (cartItemId: number) => {
+    setCart((prevCart) => prevCart.filter((item) => item.id !== cartItemId));
   };
 
   const checkout = () => {
@@ -104,7 +105,7 @@ const App: React.FC = () => {
   return (
     <>
       <div className='search-bar justify-items-center'>
-        <button type="button" data-collapse-toggle="navbar-search" aria-controls="navbar-search" aria-expanded="false" className="max-w-full md:hidden text-gray-500 hover:bg-gray-100 focus:outline-none">
+        <button type="button" data-collapse-toggle="navbar-search" aria-controls="navbar-search" aria-expanded="false" className="max-w-full md:hidden text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 rounded-lg text-sm p-2.5 mr-1" aria-label="Toggle search">
           <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
           </svg>
@@ -138,8 +139,8 @@ const App: React.FC = () => {
             decreaseQuantity={decreaseQuantity}
             removeFromCart={removeFromCart}
             totalPrice={totalPrice}
-            checkout={checkout}
-          />
+            checkout={checkout} 
+            isLoggedIn={false}          />
         </div>
       </div>
     </>

@@ -2,10 +2,10 @@ import React from 'react';
 import { Product } from './Product';
 
 interface CartItemProps {
-  item: { product: Product; quantity: number; id?: string };
-  increaseQuantity: (cartItemId: string, productId: string) => void;
-  decreaseQuantity: (cartItemId: string, productId: string) => void;
-  removeFromCart: (cartItemId: string) => void;
+  item: { product: Product; quantity: number; id?: number };
+  increaseQuantity: (cartItemId: number, productId: number) => void;
+  decreaseQuantity: (cartItemId: number, productId: number) => void;
+  removeFromCart: (cartItemId: number) => void;
 }
 
 const CartItem: React.FC<CartItemProps> = ({ item, increaseQuantity, decreaseQuantity, removeFromCart }) => {
@@ -23,14 +23,14 @@ const CartItem: React.FC<CartItemProps> = ({ item, increaseQuantity, decreaseQua
               <div className="flex items-center">
                 <button 
                   className="bg-blue-300 rounded px-2 py-1" 
-                  onClick={() => item.id && decreaseQuantity(item.id, item.product.id.toString())}
+                  onClick={() => item.id && decreaseQuantity(item.id, item.product.id)}
                 >
                   -
                 </button>
                 <span className="mx-2 text-gray-600">{item.quantity}</span>
                 <button 
                   className="bg-blue-300 rounded px-2 py-1" 
-                  onClick={() => item.id && increaseQuantity(item.id, item.product.id.toString())}
+                  onClick={() => item.id && increaseQuantity(item.id, item.product.id)}
                 >
                   +
                 </button>
