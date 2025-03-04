@@ -13,6 +13,13 @@ export const getByUser = query({
     const itemsWithDetails = await Promise.all(
       cartItems.map(async (item) => {
         const product = await ctx.db.get(item.product_id);
+
+        if (!product) {
+          // Handle the case where product is null
+          console.error('Product is null for item:', item);
+          return null;
+        }
+
         return {
           id: item._id,
           product: {
@@ -29,7 +36,8 @@ export const getByUser = query({
       })
     );
     
-    return itemsWithDetails;
+    // Filter out any items that are null due to missing products
+    return itemsWithDetails.filter(item => item !== null);
   },
 });
 
@@ -97,4 +105,15 @@ export const removeItem = mutation({
 export const clearCart = mutation({
   args: { userId: v.id("users") },
   handler: async (ctx, args) => {
-    const cartItems = await
+    const cartItems = await ctx.db
+      .query("cart")
+      .withIndex("by_user", (q) => q.eq("user_id", args.userId))
+      .collect();
+    
+    await Promise.all(
+      cartItems.map(async (item) => {
+        await ctx.db.delete(item._id);
+      })
+    );
+  },
+});
