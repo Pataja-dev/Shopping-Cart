@@ -1,10 +1,11 @@
-import React, { createContext, useReducer, ReactNode } from 'react';
+// CartContext.tsx
+import React, { createContext, useReducer, ReactNode, useContext } from 'react';
 import { Product } from './UI/Product';
 
 interface CartItem {
-  id: number;
   product: Product;
   quantity: number;
+  id: number;
 }
 
 interface CartState {
@@ -41,7 +42,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
           ),
         };
       }
-      return { ...state, cart: [...state.cart, { id: Date.now(), product: action.product, quantity: 1 }] };
+      return { ...state, cart: [...state.cart, { product: action.product, quantity: 1, id: Date.now() }] };
 
     case 'INCREASE_QUANTITY':
       return {
@@ -63,7 +64,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       return { ...state, cart: state.cart.filter(item => item.id !== action.id) };
 
     case 'CHECKOUT':
-      return { ...state, cart: [] }; 
+      return { ...state, cart: [] }; // Clear the cart on checkout
 
     default:
       return state;
@@ -80,4 +81,4 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 };
 
-export const useCart = () => React.useContext(CartContext);
+export const useCart = () => useContext(CartContext);

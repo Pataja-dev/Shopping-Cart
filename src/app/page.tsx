@@ -1,10 +1,13 @@
+// App.tsx
 "use client"
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProductList from './UI/ProductList';
 import Cart from './UI/Cart';
-import {  Product } from './UI/Product';
+import { fallbackProducts, Product } from './UI/Product';
 import { fetchProductsFromDB } from '../services/databaseService';
 import { CartProvider, useCart } from './CartContext';
+import { api } from '../../convex/_generated/api';
+import { useQuery } from 'convex/react';
 
 const App: React.FC = () => {
   return (
@@ -16,24 +19,10 @@ const App: React.FC = () => {
 
 const Main: React.FC = () => {
   const { state, dispatch } = useCart();
-  const [products, setProducts] = React.useState<Product[]>(fetchProductsFromDB);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
+  const [products, setProducts] = useState<Product[]>(fallbackProducts);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const fetchedProducts = await fetchProductsFromDB();
-        setProducts(fetchedProducts);
-      } catch (error) {
-        setError('Failed to fetch products.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, []);
 
   const addToCart = (product: Product) => {
     dispatch({ type: 'ADD_ITEM', product });
@@ -51,6 +40,10 @@ const Main: React.FC = () => {
     dispatch({ type: 'REMOVE_ITEM', id });
   };
 
+  const checkout = () => {
+    dispatch({ type: 'CHECKOUT' });
+  };
+
   const totalPrice = state.cart.reduce((total, item) => total + item.product.price * item.quantity, 0);
 
   if (loading) return <p>Loading...</p>;
@@ -58,16 +51,18 @@ const Main: React.FC = () => {
 
   return (
     <>
-      <ProductList products={products} addToCart={addToCart} categories={[]} selectedCategory={null} onSelectCategory={() => {}} />
-      <Cart
-        cartItems={state.cart || []} // Ensure cartItems is always an array
-        increaseQuantity={increaseQuantity}
-        decreaseQuantity={decreaseQuantity}
-        removeFromCart={removeFromCart}
-        totalPrice={totalPrice}
-        checkout={() => dispatch({ type: 'REMOVE_ITEM', id: 0 })} // Placeholder for checkout action
-        isLoggedIn={true}
-      />
+      <div className='search-bar justify-items-center'>
+        <ProductList products={products} addToCart={addToCart} categories={[]} selectedCategory={null} onSelectCategory={() => {}} />
+        <Cart
+          cartItems={state.cart}
+          increaseQuantity={increaseQuantity}
+          decreaseQuantity={decreaseQuantity}
+          removeFromCart={removeFromCart}
+          totalPrice={totalPrice}
+          checkout={checkout}
+          isLoggedIn={true}
+        />
+      </div>
     </>
   );
 };
