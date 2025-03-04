@@ -3,30 +3,22 @@ import CartItem from './CartItem';
 import { Product } from './Product';
 
 interface CartItemType {
-  id?: number;
+  id: number;
   product: Product;
   quantity: number;
 }
 
 interface CartProps {
   cartItems: CartItemType[];
-  increaseQuantity: (cartItemId: number, productId: number) => void;
-  decreaseQuantity: (cartItemId: number, productId: number) => void;
+  increaseQuantity: (cartItemId: number) => void;
+  decreaseQuantity: (cartItemId: number) => void;
   removeFromCart: (cartItemId: number) => void;
   totalPrice: number;
   checkout: () => void;
   isLoggedIn: boolean;
 }
 
-const Cart: React.FC<CartProps> = ({
-  cartItems,
-  increaseQuantity,
-  decreaseQuantity,
-  removeFromCart,
-  totalPrice,
-  checkout,
-  isLoggedIn
-}) => {
+const Cart: React.FC<CartProps> = ({ cartItems, increaseQuantity, decreaseQuantity, removeFromCart, totalPrice, checkout, isLoggedIn }) => {
   return (
     <div className="fixed right-0 top-0 w-[400px] h-full bg-white border-l border-gray-200 shadow-lg p-4 overflow-y-auto">
       <h2 className="text-xl font-bold mb-4">Shopping Cart</h2>
@@ -42,7 +34,7 @@ const Cart: React.FC<CartProps> = ({
       ) : (
         cartItems.map((item) => (
           <CartItem
-            key={item.id || item.product.id}
+            key={item.id}
             item={item}
             increaseQuantity={increaseQuantity}
             decreaseQuantity={decreaseQuantity}
