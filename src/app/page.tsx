@@ -140,7 +140,7 @@ const App: React.FC = () => {
             removeFromCart={removeFromCart}
             totalPrice={totalPrice}
             checkout={checkout} 
-            isLoggedIn={false}          />
+            isLoggedIn={true}          />
         </div>
       </div>
     </>

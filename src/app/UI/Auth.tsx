@@ -31,33 +31,39 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onSignup, isLoading, error }) => {
         <form onSubmit={handleSubmit}>
           {!isLoginMode && (
             <div className="mb-4">
-              <label className="block text-gray-700">Username</label>
+              <label htmlFor="username" className="block text-gray-700">Username</label>
               <input
+                id="username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full px-3 py-2 border rounded"
+                placeholder="Enter your username"
                 required
               />
             </div>
           )}
           <div className="mb-4">
-            <label className="block text-gray-700">Email</label>
+            <label htmlFor="email" className="block text-gray-700">Email</label>
             <input
+              id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 border rounded"
+              placeholder="Enter your email"
               required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700">Password</label>
+            <label htmlFor="password" className="block text-gray-700">Password</label>
             <input
+              id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 py-2 border rounded"
+              placeholder="Enter your password"
               required
             />
           </div>

@@ -1,5 +1,5 @@
 import { ConvexProvider, useConvex } from 'convex/react';
-import { ConvexReactClient } from 'convex/react-client';
+import { ConvexReactClient } from "convex/react";
 
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 if (!convexUrl) {
