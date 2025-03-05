@@ -17,7 +17,8 @@ type CartAction =
   | { type: 'INCREASE_QUANTITY'; id: number }
   | { type: 'DECREASE_QUANTITY'; id: number }
   | { type: 'REMOVE_ITEM'; id: number }
-  | { type: 'CHECKOUT' };
+  | { type: 'CHECKOUT' }
+  | { type: 'SYNC_CART'; cart: CartItem[] }; 
 
 const initialState: CartState = {
   cart: [],
@@ -65,6 +66,9 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 
     case 'CHECKOUT':
       return { ...state, cart: [] }; // Clear the cart on checkout
+
+    case 'SYNC_CART':
+      return { ...state, cart: action.cart }; // Sync the cart with the provided cart items
 
     default:
       return state;
