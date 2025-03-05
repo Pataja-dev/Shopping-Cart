@@ -1,23 +1,48 @@
+"use client"
 import React, { useState } from 'react';
+import { useMutation } from "convex/react"; // Adjust this import based on your setup
+import { api } from "../../../convex/_generated/api"; // Adjust the import path as necessary
+import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 interface AuthProps {
-  onLogin: (email: string, password: string) => void;
+  onLogin: (username: string, password: string) => void;
   onSignup: (username: string, email: string, password: string) => void;
   isLoading: boolean;
   error: string | null;
 }
 
 const Auth: React.FC<AuthProps> = ({ onLogin, onSignup, isLoading, error }) => {
+  const signUp = useMutation(api.user.create); // Use the correct hook for the mutation
+  const login = useMutation(api.user.login); // Assuming you have a login mutation defined
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isLoginMode) {
-      onLogin(email, password);
+      try {
+        await login({ username: username, password });
+        // setSuccess("Login successful!");
+        router.push("/"); 
+      } catch (error) {
+        // setError("Login failed. Please try again.");
+        console.error(error);
+      }
+      onLogin(username, password);
     } else {
+      try {
+        await signUp({ username: username, email, password });
+        // setSuccess("Sign up successful!"); 
+        // redirect("/")
+        setIsLoginMode((prevMode) => !prevMode)
+      } catch (error) {
+        // setError("Sign up failed. Please try again."); 
+        console.error(error); 
+      }
       onSignup(username, email, password);
     }
   };

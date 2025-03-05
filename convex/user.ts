@@ -74,6 +74,29 @@ export const create = mutation({
   },
 });
 
+export const login = mutation({
+  args: {
+    username: v.string(),
+    password: v.string(),
+  },
+  handler: async (ctx, { username, password }) => {
+    // Replace this with your actual user authentication logic
+    const user = await ctx.db.query("users").filter(q => q.eq(q.field("username"), username)).first();
+
+    if (!user) {
+      throw new Error("User  not found");
+    }
+
+    // Here you would typically check the password
+    if (user.password !== password) {
+      throw new Error("Invalid password");
+    }
+
+    // Return user data or a success message
+    return { success: true, userId: user._id };
+  },
+});
+
 // Update a user
 export const update = mutation({
   args: {

@@ -1,6 +1,8 @@
 
 import React from 'react';
 import CartItem from './CartItem';
+import { useQuery } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 
 interface Product {
   id: number;
@@ -24,9 +26,11 @@ interface CartProps {
 }
 
 const Cart: React.FC<CartProps> = ({ cartItems, increaseQuantity, decreaseQuantity, removeFromCart, totalPrice, checkout }) => {
+  // const cartItemization = useQuery(api.cart.getByUser)
   return (
     <div className="fixed right-0 top-0 w-[400px] h-full bg-white border-l border-gray-200 shadow-lg p-4 overflow-y-auto">
       <h2 className="text-xl font-bold mb-4">Shopping Cart</h2>
+
       
       {cartItems.length === 0 ? (
         <p>Your cart is empty</p>
