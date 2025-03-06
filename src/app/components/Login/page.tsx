@@ -1,9 +1,8 @@
-"use client"
+"use client";
 import { useState } from "react";
 import { useMutation } from "convex/react"; 
 import { api } from "../../../../convex/_generated/api"; 
 import { useRouter } from "next/navigation";
-
 
 export default function LoginForm() {
   const login = useMutation(api.user.login); 
@@ -11,6 +10,7 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleSubmit = async (event: { preventDefault: () => void; }) => {
     event.preventDefault();
@@ -18,14 +18,17 @@ export default function LoginForm() {
     setSuccess(null);
 
     try {
-      await login({ username: userName, password });
+      const response = await login({ username: userName, password });
+      const userId = response.userId; 
+      localStorage.setItem('userId', userId); 
       setSuccess("Login successful!");
+      router.push('/'); 
     } catch (error) {
       setError("Login failed. Please try again.");
       console.error(error);
     }
   };
-  const router = useRouter()
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <form
@@ -59,7 +62,6 @@ export default function LoginForm() {
         </div>
 
         <button
-          onClick={() => router.push('/')}
           type="submit"
           className="w-full bg-blue-600 text-white font-semibold py-2 rounded-md hover:bg-blue-700 transition duration-200"
         >
@@ -69,12 +71,12 @@ export default function LoginForm() {
         {error && <p className="mt-4 text-red-500 text-sm text-center">{error}</p>}
         {success && <p className="mt-4 text-green-500 text-sm text-center">{success}</p>}
         <button
-            type="button"
-            onClick={() => router.push('/components/Signup')}
-            className="w-full text-blue-500 py-2 mt-4"
-          >
-            Switch to Sign Up
-          </button>
+          type="button"
+          onClick={() => router.push('/components/Signup')}
+          className="w-full text-blue-500 py-2 mt-4"
+        >
+          Switch to Sign Up
+        </button>
       </form>
     </div>
   );

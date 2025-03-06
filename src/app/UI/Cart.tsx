@@ -5,10 +5,12 @@ import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 
 interface Product {
-  id: number;
+  id: string;
   name: string;
   price: number;
-  img: string;
+  image: string;
+  description: string;
+  stock_quantity: number;
 }
 
 interface CartItemType {
@@ -18,9 +20,9 @@ interface CartItemType {
 
 interface CartProps {
   cartItems: CartItemType[];  
-  increaseQuantity: (productId: number) => void;
-  decreaseQuantity: (productId: number) => void;
-  removeFromCart: (productId: number) => void;
+  increaseQuantity: (productId: string) => void;
+  decreaseQuantity: (productId: string) => void;
+  removeFromCart: (productId: string) => void;
   totalPrice: number;
   checkout: () => void;
 }

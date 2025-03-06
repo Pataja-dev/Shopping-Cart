@@ -1,108 +1,92 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
-// Get all users (admin only)
-export const getAll = query({
+// Get all products
+export const getAllProducts = query({
   handler: async (ctx) => {
-    const users = await ctx.db.query("users").collect();
-    return users.map((user) => ({
-      id: user._id,
-      username: user.username,
-      email: user.email,
-      created_at: user.created_at,
-      updated_at: user.updated_at,
+    const products = await ctx.db.query("products").collect();
+    return products.map((product) => ({
+      id: product._id,
+      name: product.name,
+      description: product.description,
+      image: product.image,
+      price: product.price,
+      stock_quantity: product.stock_quantity,
+      created_at: product.created_at,
+      updated_at: product.updated_at,
     }));
   },
 });
 
-// Get a user by ID
-export const getById = query({
-  args: { id: v.id("users") },
+// Get a product by ID
+export const getProductById = query({
+  args: { id: v.id("products") },
   handler: async (ctx, args) => {
-    const user = await ctx.db.get(args.id);
-    if (!user) return null;
+    const product = await ctx.db.get(args.id);
+    if (!product) return null;
     return {
-      id: user._id,
-      username: user.username,
-      email: user.email,
-      created_at: user.created_at,
-      updated_at: user.updated_at,
+      id: product._id,
+      name: product.name,
+      description: product.description,
+      image: product.image,
+      price: product.price,
+      stock_quantity: product.stock_quantity,
+      created_at: product.created_at,
+      updated_at: product.updated_at,
     };
   },
 });
 
-// Get a user by email (for login)
-export const getByEmail = query({
-  args: { email: v.string() },
-  handler: async (ctx, args) => {
-    const users = await ctx.db
-      .query("users")
-      .withIndex("by_email", (q) => q.eq("email", args.email))
-      .collect();
-    
-    if (users.length === 0) return null;
-    const user = users[0];
-    
-    return {
-      id: user._id,
-      username: user.username,
-      email: user.email,
-      password: user.password, // In a real app, you'd compare hashed passwords on the server
-      created_at: user.created_at,
-      updated_at: user.updated_at,
-    };
-  },
-});
-
-// Create a new user (signup)
-export const create = mutation({
+// Create a new product
+export const createProduct = mutation({
   args: {
-    username: v.string(),
-    password: v.string(),
-    email: v.string(),
+    name: v.string(),
+    description: v.string(),
+    image: v.string(),
+    price: v.number(),
+    stock_quantity: v.number(),
   },
   handler: async (ctx, args) => {
-    // In a real app, hash the password here
     const now = new Date().toISOString();
-    return await ctx.db.insert("users", {
-      username: args.username,
-      password: args.password, // Store hashed password in production
-      email: args.email,
+    return await ctx.db.insert("products", {
+      name: args.name,
+      description: args.description,
+      image: args.image,
+      price: args.price,
+      stock_quantity: args.stock_quantity,
       created_at: now,
       updated_at: now,
     });
   },
 });
 
-// Update a user
-export const update = mutation({
+// Update a product
+export const updateProduct = mutation({
   args: {
-    id: v.id("users"),
-    username: v.string(),
-    email: v.string(),
+    id: v.id("products"),
+    name: v.string(),
+    description: v.string(),
+    image: v.string(),
+    price: v.number(),
+    stock_quantity: v.number(),
   },
   handler: async (ctx, args) => {
     const now = new Date().toISOString();
     await ctx.db.patch(args.id, {
-      username: args.username,
-      email: args.email,
+      name: args.name,
+      description: args.description,
+      image: args.image,
+      price: args.price,
+      stock_quantity: args.stock_quantity,
       updated_at: now,
     });
   },
 });
 
-// Update password
-export const updatePassword = mutation({
-  args: {
-    id: v.id("users"),
-    password: v.string(),
-  },
+// Delete a product
+export const deleteProduct = mutation({
+  args: { id: v.id("products") },
   handler: async (ctx, args) => {
-    // In a real app, hash the password here
-    const now = new Date().toISOString();
-    await ctx.db.patch(args.id, {
-      password: args.password, // Store hashed password in production
-      updated_at: now,
-    });
+    await ctx.db.delete(args.id);
   },
 });

@@ -2,17 +2,19 @@
 import React from 'react';
 
 interface Product {
-  id: number;
+  id: string;
   name: string;
   price: number;
-  img: string;
+  image: string;
+  description: string;
+  stock_quantity: number;
 }
 
 interface CartItemProps {
   item: { product: Product; quantity: number };
-  increaseQuantity: (productId: number) => void;
-  decreaseQuantity: (productId: number) => void;
-  removeFromCart: (productId: number) => void;
+  increaseQuantity: (productId: string) => void;
+  decreaseQuantity: (productId: string) => void;
+  removeFromCart: (productId: string) => void;
 }
 
 const CartItem: React.FC<CartItemProps> = ({ item, increaseQuantity, decreaseQuantity, removeFromCart }) => {
@@ -21,7 +23,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, increaseQuantity, decreaseQua
         <div className="mt-8">
             <div className="flex flex-col md:flex-row border-b border-gray-400 py-4">
                 <div className="flex-shrink-0">
-                    <img src={item.product.img} alt="Product image" className="w-32 h-32 object-cover"/>
+                    <img src={item.product.image} alt="Product image" className="w-32 h-32 object-cover"/>
                 </div>
                 <div className="mt-4 md:mt-0 md:ml-6">
                     <h2 className="text-lg font-bold">{item.product.name}</h2>

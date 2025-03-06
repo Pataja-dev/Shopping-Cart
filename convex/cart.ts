@@ -15,8 +15,7 @@ export const getByUser = query({
         const product = await ctx.db.get(item.product_id);
 
         if (!product) {
-          // Handle the case where product is null
-          console.error('Product is null for item:', item);
+          console.error("Product is null for item:", item);
           return null;
         }
 
@@ -28,6 +27,7 @@ export const getByUser = query({
             price: product.price,
             image: product.image,
             description: product.description,
+            stock_quantity: product.stock_quantity, // **Ensure this is included**
           },
           quantity: item.quantity,
           created_at: item.created_at,
@@ -36,8 +36,7 @@ export const getByUser = query({
       })
     );
 
-    // Filter out any items that are null due to missing products
-    return itemsWithDetails.filter(item => item !== null);
+    return itemsWithDetails.filter((item) => item !== null);
   },
 });
 
